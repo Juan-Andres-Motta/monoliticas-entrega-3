@@ -100,12 +100,12 @@ poetry run python check_database.py
 ```bash
 # Make sure PostgreSQL is running locally
 # Create database and user (run these commands in psql):
-# CREATE DATABASE tracking_db;
+# CREATE DATABASE trackingdb;
 # CREATE USER tracking_user WITH PASSWORD 'tracking_password';
-# GRANT ALL PRIVILEGES ON DATABASE tracking_db TO tracking_user;
+# GRANT ALL PRIVILEGES ON DATABASE trackingdb TO tracking_user;
 
 # Set environment variable (optional, this is the default)
-export DATABASE_URL="postgresql://tracking_user:tracking_password@localhost:5432/tracking_db"
+export DATABASE_URL="postgresql://tracking_user:tracking_password@localhost:5432/trackingdb"
 
 # Start the application
 poetry run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
@@ -329,7 +329,7 @@ Edit `config/database.py` or set environment variable:
 
 ```bash
 # Default (used by Docker Compose)
-export DATABASE_URL="postgresql://tracking_user:tracking_password@localhost:5432/tracking_db"
+export DATABASE_URL="postgresql://tracking_user:tracking_password@localhost:5432/trackingdb"
 
 # For different PostgreSQL setup
 export DATABASE_URL="postgresql://user:password@host:port/database_name"
