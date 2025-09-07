@@ -63,9 +63,10 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 
-# SQLite databases (for this project)
+# Database files  
 *.db
-tracking_service.db
+*.sqlite
+*.sqlite3
 
 # Docker data directories
 data/

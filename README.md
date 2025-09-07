@@ -85,18 +85,36 @@ poetry run python --version
 
 ### 2. Database Setup
 
-The project uses SQLite and automatically creates tables when the application starts. You have two options:
+The project uses PostgreSQL and automatically creates tables when the application starts. You have two options:
 
-**Option A: Automatic Setup (Recommended for development)**
+**Option A: Using Docker (Recommended)**
 ```bash
-# Tables are created automatically when you start the server
-poetry run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+# Start PostgreSQL and the application together
+docker-compose up --build
 
 # Verify database was created
 poetry run python check_database.py
 ```
 
-**Option B: Using Alembic Migrations (For production or schema versioning)**
+**Option B: Local PostgreSQL Setup**
+```bash
+# Make sure PostgreSQL is running locally
+# Create database and user (run these commands in psql):
+# CREATE DATABASE tracking_db;
+# CREATE USER tracking_user WITH PASSWORD 'tracking_password';
+# GRANT ALL PRIVILEGES ON DATABASE tracking_db TO tracking_user;
+
+# Set environment variable (optional, this is the default)
+export DATABASE_URL="postgresql://tracking_user:tracking_password@localhost:5432/tracking_db"
+
+# Start the application
+poetry run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+# Verify database setup
+poetry run python check_database.py
+```
+
+**Option C: Using Alembic Migrations (For production or schema versioning)**
 ```bash
 # If you want to use migrations instead of auto-creation
 poetry run alembic upgrade head
@@ -170,8 +188,9 @@ The containerized API will be available at:
 - **API**: http://localhost:8000
 - **Documentation**: http://localhost:8000/docs  
 - **Health Check**: http://localhost:8000/api/v1/tracking/health
+- **PostgreSQL**: localhost:5432
 
-> **Note**: The SQLite database will be persisted in the `./data` directory on your host machine.
+> **Note**: The PostgreSQL database data will be persisted in a Docker volume named `postgres_data`.
 
 ## 📝 API Usage
 
@@ -252,15 +271,15 @@ Visit http://localhost:8000/docs to use the Swagger UI for testing the API inter
 
 ## 🗄️ Database
 
-The project uses SQLite by default for development. The database file `tracking_service.db` will be created automatically when you first start the server.
+The project uses PostgreSQL for data persistence. The database connection will be created automatically when you start the services.
 
 ### Automatic Table Creation
 
 The application is configured to automatically create database tables on startup using SQLAlchemy's `Base.metadata.create_all()`. This means:
 
-- **No manual setup required** - just start the server
-- **Database file created automatically** in the project root
-- **Tables created from SQLAlchemy models** on first run
+- **No manual setup required** when using Docker
+- **Database tables created automatically** from SQLAlchemy models on first run
+- **PostgreSQL optimizations** including connection pooling
 
 ### Database Schema
 
@@ -273,10 +292,16 @@ CREATE TABLE tracking_events (
     interaction_type VARCHAR(50) NOT NULL,
     source_url TEXT NOT NULL,
     destination_url TEXT NOT NULL,
-    recorded_at DATETIME NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    recorded_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Indexes for performance
+CREATE INDEX idx_tracking_events_partner_id ON tracking_events(partner_id);
+CREATE INDEX idx_tracking_events_campaign_id ON tracking_events(campaign_id);
+CREATE INDEX idx_tracking_events_visitor_id ON tracking_events(visitor_id);
+CREATE INDEX idx_tracking_events_interaction_type ON tracking_events(interaction_type);
 ```
 
 ### Migration Commands (Optional)
@@ -303,11 +328,11 @@ poetry run alembic downgrade -1
 Edit `config/database.py` or set environment variable:
 
 ```bash
-# For PostgreSQL
-export DATABASE_URL="postgresql://user:password@localhost:5432/tracking_db"
+# Default (used by Docker Compose)
+export DATABASE_URL="postgresql://tracking_user:tracking_password@localhost:5432/tracking_db"
 
-# For MySQL
-export DATABASE_URL="mysql://user:password@localhost:3306/tracking_db"
+# For different PostgreSQL setup
+export DATABASE_URL="postgresql://user:password@host:port/database_name"
 ```
 
 ### Adding New Event Handlers
