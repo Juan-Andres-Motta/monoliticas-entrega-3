@@ -5,7 +5,7 @@ services:
     image: postgres:16-alpine
     container_name: tracking-postgres
     environment:
-      POSTGRES_DB: tracking_db
+      POSTGRES_DB: trackingdb
       POSTGRES_USER: tracking_user
       POSTGRES_PASSWORD: tracking_password
     ports:
