@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  tracking-service:
+    build: .
+    container_name: tracking-service
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./data/tracking_service.db
+    volumes:
+      # Mount database directory to persist SQLite data
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/tracking/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

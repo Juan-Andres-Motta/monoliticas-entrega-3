@@ -67,6 +67,9 @@ db.sqlite3-journal
 *.db
 tracking_service.db
 
+# Docker data directories
+data/
+
 # Flask stuff:
 instance/
 .webassets-cache
