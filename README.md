@@ -242,29 +242,6 @@ graph LR
 
 ## 🧪 Testing
 
-### Manual Testing
-
-```bash
-# Test the API endpoints
-curl -X POST "http://localhost:8000/api/v1/tracking/events" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "partner_id": "google-ads",
-    "campaign_id": "summer-sale-2025", 
-    "visitor_id": "user123",
-    "interaction_type": "click",
-    "source_url": "https://google.com/ad",
-    "destination_url": "https://mystore.com/products"
-  }'
-
-# Check database contents
-poetry run python check_database.py
-
-# Test domain events (requires aiohttp)
-poetry add aiohttp --group dev  # Add aiohttp for testing
-poetry run python test_domain_events.py
-```
-
 ### Using the Interactive Documentation
 
 Visit http://localhost:8000/docs to use the Swagger UI for testing the API interactively.
@@ -352,13 +329,6 @@ event_publisher.register_handler("tracking_event.recorded.v1", new_handler)
 - **Server Logs**: Monitor console output for domain event processing
 - **Database Check**: Use `poetry run python check_database.py` to verify data persistence
 
-## 🤝 Contributing
-
-1. Follow the existing code structure and patterns
-2. Add tests for new features
-3. Update database migrations when changing models
-4. Document any new configuration options
-
 ## 📚 Key Concepts Demonstrated
 
 - **Aggregate Root**: `TrackingEvent` as the main domain aggregate
@@ -367,5 +337,3 @@ event_publisher.register_handler("tracking_event.recorded.v1", new_handler)
 - **Command Handler**: Processes commands and coordinates domain logic
 - **Event Publisher**: Decouples modules through asynchronous event processing
 - **Dependency Injection**: Clean separation of concerns through DI container
-
-This project serves as a practical example of implementing modern software architecture patterns in Python with FastAPI.
